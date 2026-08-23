@@ -23,39 +23,48 @@
       padding: 15px;
     }
     .container { max-width: 700px; margin: 0 auto; }
-    h1, h2, h3 { text-align: center; color: var(--text); margin-bottom: 10px; }
+    h1, h2, h3 { text-align: center; color: var(--text); margin-top: 0; margin-bottom: 10px; }
     .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
     .tab-btn {
-      flex: 1; padding: 12px; background: var(--card); border: 2px solid transparent;
-      color: var(--text); font-weight: bold; border-radius: 8px; cursor: pointer;
+      flex: 1; padding: 14px; background: var(--card); border: 2px solid transparent;
+      color: var(--text); font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 1rem;
     }
     .tab-btn.active { border-color: var(--accent); background: #2563eb; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .card { background: var(--card); padding: 16px; border-radius: 12px; margin-bottom: 15px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    @media(min-width: 500px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
-    .stat-box { background: #0f172a; padding: 10px; border-radius: 8px; text-align: center; }
-    .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
-    .stat-label { font-size: 0.8rem; color: var(--subtext); }
+    .card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; }
+    
+    /* PROGRESS BAR STYLES */
+    .macro-row { margin-bottom: 12px; }
+    .macro-header { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; margin-bottom: 4px; }
+    .progress-bar-bg { background: #0f172a; height: 10px; border-radius: 5px; overflow: hidden; }
+    .progress-bar-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.3s ease; }
+    
+    /* QUICK ADD BUTTONS */
+    .quick-add-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .quick-btn { background: #334155; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .quick-btn:hover { background: var(--accent); }
+
     input, select, button {
-      width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px;
-      border: 1px solid #334155; background: #0f172a; color: var(--text); box-sizing: border-box;
+      width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px;
+      border: 1px solid #334155; background: #0f172a; color: var(--text); box-sizing: border-box; font-size: 0.95rem;
     }
-    button.action-btn { background: var(--accent); font-weight: bold; border: none; cursor: pointer; }
+    button.action-btn { background: var(--accent); font-weight: bold; border: none; cursor: pointer; font-size: 1rem; }
     button.danger-btn { background: var(--accent-red); font-weight: bold; border: none; cursor: pointer; }
-    .btn-group { display: flex; gap: 5px; margin-top: 8px; }
-    .btn-group button { flex: 1; font-size: 0.8rem; padding: 8px 4px; border: none; cursor: pointer; }
+    
+    .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-group button { flex: 1; font-size: 0.85rem; padding: 10px 4px; border: none; cursor: pointer; font-weight: bold; }
     .btn-light { background: #38bdf8; color: #000; }
     .btn-right { background: var(--accent-green); color: #fff; }
     .btn-heavy { background: var(--accent-red); color: #fff; }
     #reader { width: 100%; border-radius: 8px; overflow: hidden; }
+    .day-title { background: #0f172a; padding: 10px 15px; border-radius: 8px; margin: 20px 0 10px 0; border-left: 4px solid var(--accent); }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Physique & Growth Tracker</h1>
+  <h1>Physique Command Center</h1>
   
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('nutrition')">Nutrition</button>
@@ -65,26 +74,42 @@
   <!-- NUTRITION TAB -->
   <div id="nutrition" class="tab-content active">
     <div class="card">
-      <h3>Daily Targets (Growth Optimized)</h3>
-      <div class="grid-4">
-        <div class="stat-box">
-          <div class="stat-val"><span id="curr-cal">0</span> / 2150</div>
-          <div class="stat-label">Calories (kcal)</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val"><span id="curr-pro">0</span> / 140g</div>
-          <div class="stat-label">Protein</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val"><span id="curr-fib">0</span> / 30g</div>
-          <div class="stat-label">Fiber</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val"><span id="curr-calcium">0</span> / 1300mg</div>
-          <div class="stat-label">Calcium</div>
-        </div>
+      <h3>Daily Macro Targets</h3>
+      
+      <div class="macro-row">
+        <div class="macro-header"><span>Calories</span><span><span id="curr-cal">0</span> / 1850 kcal</span></div>
+        <div class="progress-bar-bg"><div id="bar-cal" class="progress-bar-fill"></div></div>
       </div>
-      <button class="danger-btn" style="margin-top:15px;" onclick="resetDailyMacros()">Reset Daily Intake (New Day)</button>
+
+      <div class="macro-row">
+        <div class="macro-header"><span>Protein</span><span><span id="curr-pro">0</span> / 155g</span></div>
+        <div class="progress-bar-bg"><div id="bar-pro" class="progress-bar-fill" style="background:var(--accent-green);"></div></div>
+      </div>
+
+      <div class="macro-row">
+        <div class="macro-header"><span>Fiber</span><span><span id="curr-fib">0</span> / 30g</span></div>
+        <div class="progress-bar-bg"><div id="bar-fib" class="progress-bar-fill"></div></div>
+      </div>
+
+      <div class="macro-row">
+        <div class="macro-header"><span>Calcium</span><span><span id="curr-calcium">0</span> / 1300mg</span></div>
+        <div class="progress-bar-bg"><div id="bar-calcium" class="progress-bar-fill"></div></div>
+      </div>
+
+      <div class="macro-row">
+        <div class="macro-header"><span>Water Intake</span><span><span id="curr-water">0</span> / 3000 ml</span></div>
+        <div class="progress-bar-bg"><div id="bar-water" class="progress-bar-fill" style="background:#38bdf8;"></div></div>
+      </div>
+
+      <!-- QUICK ADD BUTTONS -->
+      <label style="font-size:0.85rem; color:var(--subtext); margin-top:10px; display:block;">Quick Log Shortcuts:</label>
+      <div class="quick-add-grid">
+        <button class="quick-btn" onclick="quickAdd(200, 25, 0, 0, 0)">+ Protein Shake</button>
+        <button class="quick-btn" onclick="quickAdd(350, 30, 0, 200, 0)">+ Chicken Breast</button>
+        <button class="quick-btn" onclick="quickAdd(0, 0, 0, 0, 500)">+ 500ml Water</button>
+      </div>
+
+      <button class="danger-btn" style="margin-top:20px;" onclick="resetDailyMacros()">Reset All For New Day</button>
     </div>
 
     <div class="card">
@@ -94,13 +119,13 @@
     </div>
 
     <div class="card">
-      <h3>Log Food Item</h3>
-      <label>Food Name</label>
+      <h3>Manual Food Logger</h3>
+      <label>Food Item Name</label>
       <input type="text" id="food-name" placeholder="e.g., Greek Yogurt">
       
       <div style="display:flex; gap:10px;">
         <div style="flex:1;">
-          <label>Serving Size Label</label>
+          <label>Serving Label Size</label>
           <input type="number" id="label-serving" placeholder="100">
         </div>
         <div style="flex:1;">
@@ -119,27 +144,27 @@
       </div>
 
       <hr style="border-color:#334155; margin:15px 0;">
-      <label>How much did you eat/drink?</label>
+      <label>Amount Consumed?</label>
       <input type="number" id="user-eaten" placeholder="e.g., 200">
 
-      <button class="action-btn" onclick="addFoodLog()">Calculate & Log to Daily Total</button>
+      <button class="action-btn" onclick="addFoodLog()">Calculate & Log Food</button>
     </div>
   </div>
 
   <!-- WORKOUT TAB -->
   <div id="workout" class="tab-content">
     <div class="card">
-      <h3>Planet Fitness Machine Progression</h3>
-      <p style="font-size:0.85rem; color:var(--subtext);">Rate your sets after each workout. The app adjusts your target weights for next week while keeping baseline defaults visible.</p>
+      <h3>5-Day PF Progressive Overload Tracker</h3>
+      <p style="font-size:0.85rem; color:var(--subtext); margin-bottom:0;">After completing your sets, rate the difficulty. The app auto-adjusts next week's recommended weight!</p>
     </div>
     <div id="workout-list"></div>
   </div>
 </div>
 
 <script>
-  // OPTIMIZED 5-DAY PLANET FITNESS WORKOUT DATA
+  // 5-DAY PLANET FITNESS WORKOUT SCHEDULE
   const defaultWorkouts = [
-    // DAY 1: UPPER BODY A (Chest & Back Focus)
+    // DAY 1
     { id: 'u1_1', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Smith Machine Incline Press', defaultWt: 50 },
     { id: 'u1_2', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Lat Pulldown Machine', defaultWt: 55 },
     { id: 'u1_3', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Flat Dumbbell Chest Press', defaultWt: 30 },
@@ -147,14 +172,14 @@
     { id: 'u1_5', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Dumbbell Incline Bicep Curls', defaultWt: 15 },
     { id: 'u1_6', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Triceps Cable Rope Pushdowns', defaultWt: 25 },
 
-    // DAY 2: LOWER BODY A (Quad Focus)
+    // DAY 2
     { id: 'l1_1', day: 'Day 2: Lower A (Quad Focus)', name: 'Smith Machine Squat', defaultWt: 70 },
     { id: 'l1_2', day: 'Day 2: Lower A (Quad Focus)', name: 'Leg Press Machine', defaultWt: 110 },
     { id: 'l1_3', day: 'Day 2: Lower A (Quad Focus)', name: 'Leg Extension Machine', defaultWt: 50 },
     { id: 'l1_4', day: 'Day 2: Lower A (Quad Focus)', name: 'Seated/Standing Calf Raise Machine', defaultWt: 60 },
     { id: 'l1_5', day: 'Day 2: Lower A (Quad Focus)', name: 'Hanging Knee/Leg Raises', defaultWt: 0 },
 
-    // DAY 3: UPPER BODY B (Shoulders & Arms Focus)
+    // DAY 3
     { id: 'u2_1', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Seated Dumbbell Shoulder Press', defaultWt: 25 },
     { id: 'u2_2', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Cable Chest Flyes', defaultWt: 20 },
     { id: 'u2_3', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Single-Arm Cable Lat Pulldowns', defaultWt: 30 },
@@ -162,14 +187,14 @@
     { id: 'u2_5', day: 'Day 3: Upper B (Shoulders Focus)', name: 'EZ-Bar Cable Curls', defaultWt: 30 },
     { id: 'u2_6', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Overhead Cable Triceps Extensions', defaultWt: 25 },
 
-    // DAY 4: LOWER BODY B (Hamstrings & Glutes Focus)
+    // DAY 4
     { id: 'l2_1', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Smith Machine RDLs (Romanian Deadlifts)', defaultWt: 60 },
     { id: 'l2_2', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Dumbbell Bulgarian Split Squats', defaultWt: 20 },
     { id: 'l2_3', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Seated or Lying Leg Curls', defaultWt: 50 },
     { id: 'l2_4', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Smith Machine Calf Raises', defaultWt: 70 },
     { id: 'l2_5', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Kneeling Cable Crunches', defaultWt: 50 },
 
-    // DAY 5: ARMS, DELTS & DETAIL HYPERTROPHY
+    // DAY 5
     { id: 'h1_1', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Dumbbell Shrugs', defaultWt: 35 },
     { id: 'h1_2', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Cable Lateral Raises', defaultWt: 10 },
     { id: 'h1_3', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Dumbbell Hammer Curls', defaultWt: 20 },
@@ -177,7 +202,7 @@
     { id: 'h1_5', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Rear Delt Fly Machine', defaultWt: 30 }
   ];
 
-  let macros = JSON.parse(localStorage.getItem('user_macros')) || { cal: 0, pro: 0, fib: 0, calcium: 0 };
+  let macros = JSON.parse(localStorage.getItem('user_macros')) || { cal: 0, pro: 0, fib: 0, calcium: 0, water: 0 };
   let workoutWeights = JSON.parse(localStorage.getItem('user_workouts')) || {};
 
   function init() {
@@ -197,7 +222,25 @@
     document.getElementById('curr-pro').innerText = Math.round(macros.pro);
     document.getElementById('curr-fib').innerText = Math.round(macros.fib);
     document.getElementById('curr-calcium').innerText = Math.round(macros.calcium);
+    document.getElementById('curr-water').innerText = Math.round(macros.water || 0);
+
+    // Dynamic Progress Bar Fills
+    document.getElementById('bar-cal').style.width = Math.min(100, (macros.cal / 1850) * 100) + '%';
+    document.getElementById('bar-pro').style.width = Math.min(100, (macros.pro / 155) * 100) + '%';
+    document.getElementById('bar-fib').style.width = Math.min(100, (macros.fib / 30) * 100) + '%';
+    document.getElementById('bar-calcium').style.width = Math.min(100, (macros.calcium / 1300) * 100) + '%';
+    document.getElementById('bar-water').style.width = Math.min(100, ((macros.water || 0) / 3000) * 100) + '%';
+
     localStorage.setItem('user_macros', JSON.stringify(macros));
+  }
+
+  function quickAdd(cal, pro, fib, calcium, water) {
+    macros.cal += cal;
+    macros.pro += pro;
+    macros.fib += fib;
+    macros.calcium += calcium;
+    macros.water = (macros.water || 0) + water;
+    updateMacroUI();
   }
 
   function addFoodLog() {
@@ -213,12 +256,12 @@
 
     updateMacroUI();
     document.getElementById('user-eaten').value = '';
-    alert('Food Logged!');
+    alert('Food Logged Successfully!');
   }
 
   function resetDailyMacros() {
-    if (confirm('Reset today\'s food tracker back to zero?')) {
-      macros = { cal: 0, pro: 0, fib: 0, calcium: 0 };
+    if (confirm('Reset today\'s macro and water log back to zero?')) {
+      macros = { cal: 0, pro: 0, fib: 0, calcium: 0, water: 0 };
       updateMacroUI();
     }
   }
@@ -261,7 +304,7 @@
       if (ex.day !== currentDay) {
         currentDay = ex.day;
         const dayHeader = document.createElement('h3');
-        dayHeader.style.marginTop = '20px';
+        dayHeader.className = 'day-title';
         dayHeader.innerText = currentDay;
         container.appendChild(dayHeader);
       }
