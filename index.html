@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growth & Physique Command Center</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #3b82f6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 15px;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1, h2, h3 { text-align: center; color: var(--text); margin-bottom: 10px; }
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn {
+      flex: 1; padding: 12px; background: var(--card); border: 2px solid transparent;
+      color: var(--text); font-weight: bold; border-radius: 8px; cursor: pointer;
+    }
+    .tab-btn.active { border-color: var(--accent); background: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card { background: var(--card); padding: 16px; border-radius: 12px; margin-bottom: 15px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media(min-width: 500px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+    .stat-box { background: #0f172a; padding: 10px; border-radius: 8px; text-align: center; }
+    .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--subtext); }
+    input, select, button {
+      width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px;
+      border: 1px solid #334155; background: #0f172a; color: var(--text); box-sizing: border-box;
+    }
+    button.action-btn { background: var(--accent); font-weight: bold; border: none; cursor: pointer; }
+    button.danger-btn { background: var(--accent-red); font-weight: bold; border: none; cursor: pointer; }
+    .btn-group { display: flex; gap: 5px; margin-top: 8px; }
+    .btn-group button { flex: 1; font-size: 0.8rem; padding: 8px 4px; border: none; cursor: pointer; }
+    .btn-light { background: #38bdf8; color: #000; }
+    .btn-right { background: var(--accent-green); color: #fff; }
+    .btn-heavy { background: var(--accent-red); color: #fff; }
+    #reader { width: 100%; border-radius: 8px; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Physique & Growth Tracker</h1>
+  
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('nutrition')">Nutrition</button>
+    <button class="tab-btn" onclick="switchTab('workout')">PF Workouts</button>
+  </div>
+
+  <!-- NUTRITION TAB -->
+  <div id="nutrition" class="tab-content active">
+    <div class="card">
+      <h3>Daily Targets (Growth Optimized)</h3>
+      <div class="grid-4">
+        <div class="stat-box">
+          <div class="stat-val"><span id="curr-cal">0</span> / 2150</div>
+          <div class="stat-label">Calories (kcal)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val"><span id="curr-pro">0</span> / 140g</div>
+          <div class="stat-label">Protein</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val"><span id="curr-fib">0</span> / 30g</div>
+          <div class="stat-label">Fiber</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val"><span id="curr-calcium">0</span> / 1300mg</div>
+          <div class="stat-label">Calcium</div>
+        </div>
+      </div>
+      <button class="danger-btn" style="margin-top:15px;" onclick="resetDailyMacros()">Reset Daily Intake (New Day)</button>
+    </div>
+
+    <div class="card">
+      <h3>Barcode Scanner</h3>
+      <div id="reader"></div>
+      <button class="action-btn" style="margin-top:10px;" onclick="startScanner()">Start Camera Scanner</button>
+    </div>
+
+    <div class="card">
+      <h3>Log Food Item</h3>
+      <label>Food Name</label>
+      <input type="text" id="food-name" placeholder="e.g., Greek Yogurt">
+      
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <label>Serving Size Label</label>
+          <input type="number" id="label-serving" placeholder="100">
+        </div>
+        <div style="flex:1;">
+          <label>Unit</label>
+          <select id="label-unit"><option>g</option><option>ml</option></select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;"><label>Calories</label><input type="number" id="label-cal" placeholder="100"></div>
+        <div style="flex:1;"><label>Protein (g)</label><input type="number" id="label-pro" placeholder="10"></div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;"><label>Fiber (g)</label><input type="number" id="label-fib" placeholder="2"></div>
+        <div style="flex:1;"><label>Calcium (mg)</label><input type="number" id="label-calcium" placeholder="150"></div>
+      </div>
+
+      <hr style="border-color:#334155; margin:15px 0;">
+      <label>How much did you eat/drink?</label>
+      <input type="number" id="user-eaten" placeholder="e.g., 200">
+
+      <button class="action-btn" onclick="addFoodLog()">Calculate & Log to Daily Total</button>
+    </div>
+  </div>
+
+  <!-- WORKOUT TAB -->
+  <div id="workout" class="tab-content">
+    <div class="card">
+      <h3>Planet Fitness Machine Progression</h3>
+      <p style="font-size:0.85rem; color:var(--subtext);">Rate your sets after each workout. The app adjusts your target weights for next week while keeping baseline defaults visible.</p>
+    </div>
+    <div id="workout-list"></div>
+  </div>
+</div>
+
+<script>
+  // OPTIMIZED 5-DAY PLANET FITNESS WORKOUT DATA
+  const defaultWorkouts = [
+    // DAY 1: UPPER BODY A (Chest & Back Focus)
+    { id: 'u1_1', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Smith Machine Incline Press', defaultWt: 50 },
+    { id: 'u1_2', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Lat Pulldown Machine', defaultWt: 55 },
+    { id: 'u1_3', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Flat Dumbbell Chest Press', defaultWt: 30 },
+    { id: 'u1_4', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Seated Cable Row Machine', defaultWt: 50 },
+    { id: 'u1_5', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Dumbbell Incline Bicep Curls', defaultWt: 15 },
+    { id: 'u1_6', day: 'Day 1: Upper A (Chest/Back Focus)', name: 'Triceps Cable Rope Pushdowns', defaultWt: 25 },
+
+    // DAY 2: LOWER BODY A (Quad Focus)
+    { id: 'l1_1', day: 'Day 2: Lower A (Quad Focus)', name: 'Smith Machine Squat', defaultWt: 70 },
+    { id: 'l1_2', day: 'Day 2: Lower A (Quad Focus)', name: 'Leg Press Machine', defaultWt: 110 },
+    { id: 'l1_3', day: 'Day 2: Lower A (Quad Focus)', name: 'Leg Extension Machine', defaultWt: 50 },
+    { id: 'l1_4', day: 'Day 2: Lower A (Quad Focus)', name: 'Seated/Standing Calf Raise Machine', defaultWt: 60 },
+    { id: 'l1_5', day: 'Day 2: Lower A (Quad Focus)', name: 'Hanging Knee/Leg Raises', defaultWt: 0 },
+
+    // DAY 3: UPPER BODY B (Shoulders & Arms Focus)
+    { id: 'u2_1', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Seated Dumbbell Shoulder Press', defaultWt: 25 },
+    { id: 'u2_2', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Cable Chest Flyes', defaultWt: 20 },
+    { id: 'u2_3', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Single-Arm Cable Lat Pulldowns', defaultWt: 30 },
+    { id: 'u2_4', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Dumbbell Lateral Raises', defaultWt: 12.5 },
+    { id: 'u2_5', day: 'Day 3: Upper B (Shoulders Focus)', name: 'EZ-Bar Cable Curls', defaultWt: 30 },
+    { id: 'u2_6', day: 'Day 3: Upper B (Shoulders Focus)', name: 'Overhead Cable Triceps Extensions', defaultWt: 25 },
+
+    // DAY 4: LOWER BODY B (Hamstrings & Glutes Focus)
+    { id: 'l2_1', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Smith Machine RDLs (Romanian Deadlifts)', defaultWt: 60 },
+    { id: 'l2_2', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Dumbbell Bulgarian Split Squats', defaultWt: 20 },
+    { id: 'l2_3', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Seated or Lying Leg Curls', defaultWt: 50 },
+    { id: 'l2_4', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Smith Machine Calf Raises', defaultWt: 70 },
+    { id: 'l2_5', day: 'Day 4: Lower B (Hamstring Focus)', name: 'Kneeling Cable Crunches', defaultWt: 50 },
+
+    // DAY 5: ARMS, DELTS & DETAIL HYPERTROPHY
+    { id: 'h1_1', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Dumbbell Shrugs', defaultWt: 35 },
+    { id: 'h1_2', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Cable Lateral Raises', defaultWt: 10 },
+    { id: 'h1_3', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Dumbbell Hammer Curls', defaultWt: 20 },
+    { id: 'h1_4', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Triceps Dip Machine', defaultWt: 60 },
+    { id: 'h1_5', day: 'Day 5: Arms & Delts Hypertrophy', name: 'Rear Delt Fly Machine', defaultWt: 30 }
+  ];
+
+  let macros = JSON.parse(localStorage.getItem('user_macros')) || { cal: 0, pro: 0, fib: 0, calcium: 0 };
+  let workoutWeights = JSON.parse(localStorage.getItem('user_workouts')) || {};
+
+  function init() {
+    updateMacroUI();
+    renderWorkouts();
+  }
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function updateMacroUI() {
+    document.getElementById('curr-cal').innerText = Math.round(macros.cal);
+    document.getElementById('curr-pro').innerText = Math.round(macros.pro);
+    document.getElementById('curr-fib').innerText = Math.round(macros.fib);
+    document.getElementById('curr-calcium').innerText = Math.round(macros.calcium);
+    localStorage.setItem('user_macros', JSON.stringify(macros));
+  }
+
+  function addFoodLog() {
+    const serving = parseFloat(document.getElementById('label-serving').value) || 100;
+    const eaten = parseFloat(document.getElementById('user-eaten').value) || 0;
+    if (eaten <= 0) return alert('Enter amount eaten');
+
+    const ratio = eaten / serving;
+    macros.cal += (parseFloat(document.getElementById('label-cal').value) || 0) * ratio;
+    macros.pro += (parseFloat(document.getElementById('label-pro').value) || 0) * ratio;
+    macros.fib += (parseFloat(document.getElementById('label-fib').value) || 0) * ratio;
+    macros.calcium += (parseFloat(document.getElementById('label-calcium').value) || 0) * ratio;
+
+    updateMacroUI();
+    document.getElementById('user-eaten').value = '';
+    alert('Food Logged!');
+  }
+
+  function resetDailyMacros() {
+    if (confirm('Reset today\'s food tracker back to zero?')) {
+      macros = { cal: 0, pro: 0, fib: 0, calcium: 0 };
+      updateMacroUI();
+    }
+  }
+
+  function startScanner() {
+    const html5Lt = new Html5Qrcode("reader");
+    html5Lt.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
+      html5Lt.stop();
+      fetchBarcodeData(decodedText);
+    }).catch(err => alert("Camera permission error or not supported."));
+  }
+
+  function fetchBarcodeData(barcode) {
+    fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 1) {
+          const p = data.product;
+          const nut = p.nutriments || {};
+          document.getElementById('food-name').value = p.product_name || 'Scanned Item';
+          document.getElementById('label-serving').value = 100;
+          document.getElementById('label-unit').value = 'g';
+          document.getElementById('label-cal').value = Math.round(nut['energy-kcal_100g'] || 0);
+          document.getElementById('label-pro').value = Math.round(nut['proteins_100g'] || 0);
+          document.getElementById('label-fib').value = Math.round(nut['fiber_100g'] || 0);
+          document.getElementById('label-calcium').value = Math.round((nut['calcium_100g'] || 0) * 1000);
+          alert(`Loaded product: ${p.product_name || 'Item'}`);
+        } else {
+          alert('Product not found in database. Enter manually.');
+        }
+      });
+  }
+
+  function renderWorkouts() {
+    const container = document.getElementById('workout-list');
+    container.innerHTML = '';
+    let currentDay = '';
+
+    defaultWorkouts.forEach(ex => {
+      if (ex.day !== currentDay) {
+        currentDay = ex.day;
+        const dayHeader = document.createElement('h3');
+        dayHeader.style.marginTop = '20px';
+        dayHeader.innerText = currentDay;
+        container.appendChild(dayHeader);
+      }
+
+      const currentWeight = workoutWeights[ex.id] !== undefined ? workoutWeights[ex.id] : ex.defaultWt;
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>${ex.name}</strong>
+          <span style="font-size:0.8rem; color:var(--subtext);">Default: ${ex.defaultWt} lbs</span>
+        </div>
+        <div style="font-size:1.4rem; font-weight:bold; margin: 8px 0; color:var(--accent);">
+          Next Target: ${currentWeight} lbs
+        </div>
+        <div class="btn-group">
+          <button class="btn-light" onclick="adjustWeight('${ex.id}', 5)">Too Light (+5lbs)</button>
+          <button class="btn-right" onclick="adjustWeight('${ex.id}', 0)">Just Right (=)</button>
+          <button class="btn-heavy" onclick="adjustWeight('${ex.id}', -5)">Too Heavy (-5lbs)</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function adjustWeight(id, change) {
+    const ex = defaultWorkouts.find(w => w.id === id);
+    const current = workoutWeights[id] !== undefined ? workoutWeights[id] : ex.defaultWt;
+    const newWeight = Math.max(0, current + change);
+    workoutWeights[id] = newWeight;
+    localStorage.setItem('user_workouts', JSON.stringify(workoutWeights));
+    renderWorkouts();
+  }
+
+  init();
+</script>
+</body>
+</html>
